@@ -1,0 +1,78 @@
+### Create user
+POST {{registrationUrl}}/registration
+Content-Type: application/json
+
+{"name": "{{accountName}}" }
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.global.set("userId", response.body.id)
+    });
+%}
+
+### Get user
+GET {{registrationUrl}}/users/{{userId}}
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.global.set("userId", response.body.id)
+    });
+%}
+
+
+### Get account
+GET {{registrationUrl}}/accounts?ownerId={{userId}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.global.set("accountId", response.body[0].id)
+    });
+%}
+
+
+### Create project
+POST {{registrationUrl}}/projects
+Content-Type: application/json
+
+{"name": "{{projectName}}", "accountId": {{accountId}} }
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.global.set("projectId", response.body.id)
+    });
+%}
+
+### Get projects
+GET {{registrationUrl}}/projects?accountId={{accountId}}
+
+### Create allocation
+POST {{allocationsUrl}}/allocations
+Content-Type: application/json
+
+{"projectId": {{projectId}}, "userId": {{userId}}, "firstDay": "2015-05-17", "lastDay": "2015-05-18"}
+
+### Get allocations
+GET {{allocationsUrl}}/allocations?projectId={{projectId}}
+
+### Create story
+POST {{backlogUrl}}/stories
+Content-Type: application/json
+
+{"projectId": {{projectId}}, "name": "Find some reeds"}
+
+### Get stories
+GET {{backlogUrl}}/stories?projectId={{projectId}}
+
+### Create timesheet
+POST {{timesheetsUrl}}/time-entries/
+Content-Type: application/json
+
+{"projectId": {{projectId}}, "userId": {{userId}}, "date": "2015-05-17", "hours": 6}
+
+### Get timesheets
+GET {{timesheetsUrl}}/time-entries?userId={{userId}}
